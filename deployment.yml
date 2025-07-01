@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: amigoscode/kubernetes:springboot-react-fullstack-v1
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+
+---
+
+# This is the service definition for the application
+# It will allow access to the application/pods from outside the cluster
+# In this case, this service acts as a LoadBalancer
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp
+spec:
+  type: NodePort # This type exposes a random port on both nodes and allows external access
+  selector:
+    app: myapp # This selector matches the labels in the deployment (line 13))
+  ports:
+  - port: 80 # This is the port that will be recieiving traffic
+    targetPort: 8080 # This the port that the traffic will be forwarded to in the pod
